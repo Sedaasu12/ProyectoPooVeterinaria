@@ -1,0 +1,129 @@
+package controllers;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import models.AtencionModel;
+import models.MascotaModel;
+import models.ServicioModel;
+
+import java.io.IOException;
+import java.util.List;
+
+import beans.Atencion;
+import beans.Mascota;
+import beans.Servicio;
+
+/**
+ * Servlet implementation class AtencionController
+ */
+@WebServlet("/AtencionController")
+public class AtencionController extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+       
+	AtencionModel modeloAtencion = new AtencionModel();
+    MascotaModel modeloMascota = new MascotaModel();
+    ServicioModel modeloServicio = new ServicioModel();
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public AtencionController() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
+    
+    protected void Procesar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String op = request.getParameter("op");
+        if(op==null){ listar(request,response); return; }
+        switch(op){
+            case "listar": listar(request,response); break;
+            case "buscar": buscar(request,response); break;
+            case "insertar": insertar(request,response); break;
+            case "editar": editar(request,response); break;
+            case "actualizar": actualizar(request,response); break;
+            case "eliminar": eliminar(request,response); break;
+            default: listar(request,response); break;
+        }
+    }
+
+    private void listar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        List<Atencion> lista = modeloAtencion.listarAtenciones();
+        List<Mascota> mascotas = modeloMascota.listarMascotas();
+        List<Servicio> servicios = modeloServicio.listarServicios();
+
+        request.setAttribute("listaAtenciones", lista);
+        request.setAttribute("listaMascotas", mascotas);
+        request.setAttribute("listaServicios", servicios);
+        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request,response);
+    }
+
+    private void buscar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String texto = request.getParameter("buscar");
+        List<Atencion> lista = modeloAtencion.buscarAtencion(texto);
+        request.setAttribute("listaAtenciones", lista);
+        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
+        request.setAttribute("listaServicios", modeloServicio.listarServicios());
+        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request,response);
+    }
+
+    private void insertar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try{
+            Atencion a = new Atencion();
+            a.setIdCita(Integer.parseInt(request.getParameter("idCita"))); // aquí se registra con el id de la cita
+            a.setDiagnostico(request.getParameter("diagnostico"));
+            a.setTratamiento(request.getParameter("tratamiento"));
+            a.setReceta(request.getParameter("receta"));
+
+            boolean ok = modeloAtencion.insertarAtencion(a);
+            if(ok) response.sendRedirect("AtencionController?op=listar");
+            else response.sendRedirect("error.jsp");
+        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+    }
+
+    private void editar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try{
+            int id = Integer.parseInt(request.getParameter("id"));
+            Atencion a = modeloAtencion.buscarAtencionPorId(id);
+            request.setAttribute("atencion", a);
+            request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
+            request.setAttribute("listaServicios", modeloServicio.listarServicios());
+            request.getRequestDispatcher("Atencion/editarAtencion.jsp").forward(request,response);
+        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+    }
+
+    private void actualizar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try{
+            Atencion a = new Atencion();
+            a.setIdAtencion(Integer.parseInt(request.getParameter("idAtencion")));
+            a.setIdCita(Integer.parseInt(request.getParameter("idCita")));
+            a.setDiagnostico(request.getParameter("diagnostico"));
+            a.setTratamiento(request.getParameter("tratamiento"));
+            a.setReceta(request.getParameter("receta"));
+
+            boolean ok = modeloAtencion.actualizarAtencion(a);
+            if(ok) response.sendRedirect("AtencionController?op=listar");
+            else response.sendRedirect("error.jsp");
+        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+    }
+
+    private void eliminar(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try{
+            int id = Integer.parseInt(request.getParameter("id"));
+            boolean ok = modeloAtencion.eliminarAtencion(id);
+            if(ok) response.sendRedirect("AtencionController?op=listar");
+            else response.sendRedirect("error.jsp");
+        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+    }
+
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { Procesar(req,resp); }
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { Procesar(req,resp); }
+}
