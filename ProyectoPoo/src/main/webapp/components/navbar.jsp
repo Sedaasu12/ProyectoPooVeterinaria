@@ -52,7 +52,7 @@ if(nombreUsuario == null){
                     </a>
                 </li>
 
-                <li class="nav-item">
+                <li class="Nav-item">
                     <a class="nav-link <%=currentUrl.contains("ServicioController")?"active":""%>" 
                        href="<%=contextPath%>/ServicioController?op=listar">
                        <i class="fas fa-stethoscope"></i> Servicios
@@ -99,14 +99,27 @@ if(nombreUsuario == null){
                         <% if(esAdmin){ %><span class="badge bg-warning text-dark">Admin</span><% } %>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li class="dropdown-header fw-bold"><i class="fa fa-user"></i> <%=rol%></li>
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-key"></i> Cambiar Contraseña</a></li>
+
+                        <li class="dropdown-header fw-bold">
+                            <i class="fa fa-user"></i> <%=rol%>
+                        </li>
+
+                        <!-- 🔑 CAMBIAR CONTRASEÑA (NUEVO) -->
+                        <li>
+                            <a class="dropdown-item" href="<%=contextPath%>/CambiarPasswordController?op=form">
+                                <i class="fas fa-key"></i> Cambiar Contraseña
+                            </a>
+                        </li>
+
                         <li><hr class="dropdown-divider"></li>
+
+                        <!-- Cerrar sesión -->
                         <li>
                             <a class="dropdown-item text-danger" href="<%=contextPath%>/LoginController?accion=logout">
                                 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                             </a>
                         </li>
+
                     </ul>
                 </li>
             </ul>

@@ -1,5 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="java.util.List, beans.Atencion, beans.Mascota, beans.Servicio" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="java.util.*, beans.Atencion, beans.Cita" %>
 
 <%
 String rol = (String) session.getAttribute("rol");
@@ -15,242 +15,241 @@ if(session.getAttribute("usuario") == null){
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Atenciones - Veterinaria</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-</head>
+    <title>Gestión de Atenciones</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 <body class="bg-light">
 
-<!-- 🔵 NAVBAR -->
+<!-- NAVBAR -->
 <jsp:include page="/components/navbar.jsp"/>
 
-<div class="container py-4">
+<div class="container mt-4">
 
-    <h2 class="text-center mb-4">
-        <i class="fas fa-stethoscope"></i> Gestión de Atenciones
+    <h2 class="mb-4 text-center">
+        <i class="fas fa-notes-medical"></i> Gestión de Atenciones
     </h2>
 
-    <!-- 🔍 BUSCADOR -->
-    <form class="d-flex mb-3" action="AtencionController" method="GET">
+    <!-- BUSCADOR -->
+    <form action="<%= request.getContextPath() %>/AtencionController" method="get" class="d-flex mb-3">
         <input type="hidden" name="op" value="buscar">
-        <input type="text" name="buscar" class="form-control me-2 shadow-sm" placeholder="Buscar mascota / cliente / servicio / diagnóstico...">
+        <input type="text" name="buscar" class="form-control me-2"
+               placeholder="Buscar por mascota, cliente, servicio o diagnóstico...">
         <button class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
     </form>
 
-    <!-- SOLO ADMIN PUEDE REGISTRAR -->
     <% if(esAdmin){ %>
     <button class="btn btn-success mb-3" data-bs-toggle="modal" data-bs-target="#modalRegistrar">
-        <i class="fas fa-plus-circle"></i> Nueva Atención
+        <i class="fas fa-plus-circle"></i> Registrar Atención
     </button>
     <% } %>
 
-    <!-- 📄 TABLA -->
-    <div class="table-responsive shadow-sm">
-        <table class="table table-striped table-bordered text-center align-middle">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Mascota</th>
-                <th>Cliente</th>
-                <th>Servicio</th>
-                <th>Fecha Atención</th>
-                <th>Diagnóstico</th>
-                <th>Opciones</th>
-            </tr>
-            </thead>
-            <tbody>
+    <!-- TABLA -->
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Mascota</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Fecha Atención</th>
+            <th>Diagnóstico</th>
+            <th>Tratamiento</th>
+            <th>Receta</th>
+            <th style="width: 120px;">Acciones</th>
+        </tr>
+        </thead>
 
-            <%
-                List<Atencion> lista = (List<Atencion>) request.getAttribute("listaAtenciones");
-                List<Mascota> mascotas = (List<Mascota>) request.getAttribute("listaMascotas");
-                List<Servicio> servicios = (List<Servicio>) request.getAttribute("listaServicios");
+        <tbody>
+        <%
+        List<Atencion> lista = (List<Atencion>) request.getAttribute("listaAtenciones");
+        List<Cita> citas = (List<Cita>) request.getAttribute("listaCitas");
 
-                if(lista!=null){
-                    for(Atencion a: lista){
-            %>
+        if(lista != null){
+            for(Atencion a : lista){
+        %>
 
-            <tr>
-                <td><%=a.getIdAtencion()%></td>
-                <td><%=a.getMascota()%></td>
-                <td><%=a.getCliente()%></td>
-                <td><%=a.getServicio()%></td>
-                <td><%=a.getFechaAtencion()%></td>
-                <td><%= (a.getDiagnostico()!=null) ? a.getDiagnostico().substring(0, Math.min(40,a.getDiagnostico().length())) + (a.getDiagnostico().length()>40?"...":"") : "" %></td>
+        <tr>
+            <td><%=a.getIdAtencion()%></td>
+            <td><%=a.getMascota()%></td>
+            <td><%=a.getCliente()%></td>
+            <td><%=a.getServicio()%></td>
+            <td><%=a.getFechaAtencion()%></td>
+            <td><%=a.getDiagnostico()%></td>
+            <td><%=a.getTratamiento()%></td>
+            <td><%=a.getReceta()%></td>
 
-                <td>
+            <td class="text-center">
+                <div class="btn-group">
 
-                <% if(esAdmin){ %>
+                    <% if(esAdmin){ %>
+
+                    <!-- EDITAR -->
                     <button class="btn btn-warning btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#modalEditar<%=a.getIdAtencion()%>">
-                        ✏ Editar
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEditar<%=a.getIdAtencion()%>">
+                        <i class="fas fa-edit"></i>
                     </button>
 
+                    <!-- ELIMINAR -->
                     <button class="btn btn-danger btn-sm"
-                        data-bs-toggle="modal" data-bs-target="#modalEliminar<%=a.getIdAtencion()%>">
-                        🗑 Eliminar
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar<%=a.getIdAtencion()%>">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
-                <% } else { %>
-                    <span class="badge bg-secondary">Solo lectura</span>
-                <% } %>
-                </td>
-            </tr>
 
-            <!-- MODAL EDITAR -->
-            <div class="modal fade" id="modalEditar<%=a.getIdAtencion()%>">
-                <div class="modal-dialog modal-lg">
-                <form class="modal-content" action="AtencionController" method="POST">
+                    <% }else{ %>
+                        <span class="badge bg-secondary">Solo lectura</span>
+                    <% } %>
 
-                    <input type="hidden" name="op" value="actualizar">
-                    <input type="hidden" name="idAtencion" value="<%=a.getIdAtencion()%>">
+                </div>
+            </td>
+        </tr>
+
+        <!-- MODAL EDITAR -->
+        <div class="modal fade" id="modalEditar<%=a.getIdAtencion()%>" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
 
                     <div class="modal-header bg-warning">
-                        <h5 class="modal-title">Editar Atención</h5>
+                        <h5 class="modal-title"><i class="fas fa-edit"></i> Editar Atención</h5>
                         <button class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
-                    <div class="modal-body row g-3">
+                    <form action="AtencionController" method="post">
+                        <input type="hidden" name="op" value="actualizar">
+                        <input type="hidden" name="idAtencion" value="<%=a.getIdAtencion()%>">
 
-                        <div class="col-md-6">
-                            <label><b>Mascota:</b></label>
-                            <select class="form-select" name="idMascota">
-                                <% for(Mascota m: mascotas){ %>
-                                    <option value="<%=m.getIdMascota()%>" <%=m.getIdMascota()==a.getIdMascota()?"selected":""%> >
-                                        <%=m.getNombre()%> | <%=m.getClienteNombre()%>
+                        <div class="modal-body row g-3">
+
+                            <div class="col-md-12">
+                                <label>Cita:</label>
+                                <select class="form-select" name="idCita">
+                                    <% for(Cita c : citas){ %>
+                                    <option value="<%=c.getIdCita()%>"
+                                        <%=c.getIdCita()==a.getIdCita() ? "selected" : ""%>>
+                                        <%=c.getMascota()%> - <%=c.getCliente()%> | <%=c.getServicio()%>
                                     </option>
-                                <% } %>
-                            </select>
-                        </div>
+                                    <% } %>
+                                </select>
+                            </div>
 
-                        <div class="col-md-6">
-                            <label><b>Servicio:</b></label>
-                            <select class="form-select" name="idServicio">
-                                <% for(Servicio s : servicios){ %>
-                                    <option value="<%=s.getIdServicio()%>" <%=s.getNombreServicio().equals(a.getServicio())?"selected":""%>>
-                                        <%=s.getNombreServicio()%>
-                                    </option>
-                                <% } %>
-                            </select>
-                        </div>
+                            <div class="col-md-6">
+                                <label>Diagnóstico:</label>
+                                <input type="text" name="diagnostico" class="form-control" value="<%=a.getDiagnostico()%>" required>
+                            </div>
 
-                        <div class="col-12">
-                            <label>Diagnóstico:</label>
-                            <textarea class="form-control" name="diagnostico"><%=a.getDiagnostico()%></textarea>
-                        </div>
+                            <div class="col-md-6">
+                                <label>Tratamiento:</label>
+                                <input type="text" name="tratamiento" class="form-control" value="<%=a.getTratamiento()%>" required>
+                            </div>
 
-                        <div class="col-12">
-                            <label>Tratamiento:</label>
-                            <textarea class="form-control" name="tratamiento"><%=a.getTratamiento()%></textarea>
-                        </div>
+                            <div class="col-md-12">
+                                <label>Receta:</label>
+                                <input type="text" name="receta" class="form-control" value="<%=a.getReceta()%>" required>
+                            </div>
 
-                        <div class="col-12">
-                            <label>Receta:</label>
-                            <textarea class="form-control" name="receta"><%=a.getReceta()%></textarea>
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button class="btn btn-warning">Actualizar</button>
-                    </div>
-
-                </form>
-                </div>
-            </div>
-
-
-            <!-- MODAL ELIMINAR -->
-            <div class="modal fade" id="modalEliminar<%=a.getIdAtencion()%>">
-                <div class="modal-dialog modal-sm">
-                    <div class="modal-content">
-
-                        <div class="modal-header bg-danger text-white">
-                            <h5>Confirmar Eliminación</h5>
-                        </div>
-
-                        <div class="modal-body">
-                            ¿Eliminar atención de <b><%=a.getMascota()%></b>?
                         </div>
 
                         <div class="modal-footer">
-                            <a class="btn btn-danger" href="AtencionController?op=eliminar&id=<%=a.getIdAtencion()%>">Eliminar</a>
                             <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button class="btn btn-warning">Actualizar</button>
                         </div>
 
-                    </div>
+                    </form>
                 </div>
             </div>
+        </div>
 
-            <% }} %>
+        <!-- MODAL ELIMINAR -->
+        <div class="modal fade" id="modalEliminar<%=a.getIdAtencion()%>" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
 
-            </tbody>
-        </table>
-    </div>
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title"><i class="fas fa-trash"></i> Eliminar Atención</h5>
+                        <button class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        ¿Eliminar atención de <b><%=a.getMascota()%></b>?
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <a class="btn btn-danger" href="AtencionController?op=eliminar&id=<%=a.getIdAtencion()%>">Eliminar</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <% } } %>
+
+        </tbody>
+    </table>
 </div>
-
 
 <!-- MODAL REGISTRAR -->
 <% if(esAdmin){ %>
-<div class="modal fade" id="modalRegistrar">
+<div class="modal fade" id="modalRegistrar" tabindex="-1">
     <div class="modal-dialog modal-lg">
-    <form class="modal-content" action="AtencionController" method="POST">
+        <div class="modal-content">
 
-        <input type="hidden" name="op" value="insertar">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-plus-circle"></i> Registrar Atención</h5>
+                <button class="btn-close"></button>
+            </div>
 
-        <div class="modal-header bg-success text-white">
-            <h5>Registrar Atención</h5>
-            <button class="btn-close" data-bs-dismiss="modal"></button>
+            <form action="AtencionController" method="post">
+                <input type="hidden" name="op" value="insertar">
+
+                <div class="modal-body row g-3">
+
+                    <div class="col-md-12">
+                        <label>Cita:</label>
+                        <select name="idCita" class="form-select" required>
+                            <option value="">Seleccione una cita</option>
+
+                            <% if(citas != null){ 
+                                for(Cita c: citas){ %>
+                                <option value="<%=c.getIdCita()%>">
+                                    <%=c.getMascota()%> - <%=c.getCliente()%> | <%=c.getServicio()%>
+                                </option>
+                            <% }} %>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Diagnóstico:</label>
+                        <input type="text" name="diagnostico" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Tratamiento:</label>
+                        <input type="text" name="tratamiento" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label>Receta:</label>
+                        <input type="text" name="receta" class="form-control" required>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success">Registrar</button>
+                </div>
+
+            </form>
+
         </div>
-
-        <div class="modal-body row g-3">
-
-            <div class="col-md-6">
-                <label><b>Mascota:</b></label>
-                <select name="idMascota" class="form-select" required>
-                    <% for(Mascota m: mascotas){ %>
-                        <option value="<%=m.getIdMascota()%>"><%=m.getNombre()%> | <%=m.getClienteNombre()%></option>
-                    <% } %>
-                </select>
-            </div>
-
-            <div class="col-md-6">
-                <label><b>Servicio:</b></label>
-                <select name="idServicio" class="form-select" required>
-                    <% for(Servicio s: servicios){ %>
-                        <option value="<%=s.getIdServicio()%>"><%=s.getNombreServicio()%></option>
-                    <% } %>
-                </select>
-            </div>
-
-            <div class="col-12">
-                <label>Diagnóstico:</label>
-                <textarea class="form-control" name="diagnostico" required></textarea>
-            </div>
-
-            <div class="col-12">
-                <label>Tratamiento:</label>
-                <textarea class="form-control" name="tratamiento"></textarea>
-            </div>
-
-            <div class="col-12">
-                <label>Receta:</label>
-                <textarea class="form-control" name="receta"></textarea>
-            </div>
-
-        </div>
-
-        <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            <button class="btn btn-success">Registrar</button>
-        </div>
-
-    </form>
     </div>
 </div>
 <% } %>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

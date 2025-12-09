@@ -46,7 +46,7 @@ String url = request.getContextPath() + "/";
 
         <div class="login-header">
             <i class="fas fa-paw"></i>
-            <h3 class="mb-0 fw-bold">Sistema Veterinaria</h3>
+            <h3 class="mb-0 fw-bold">Centro Veterinario Canino & Felino</h3>
             <p class="mt-1 text-light">Gestión administrativa</p>
         </div>
 

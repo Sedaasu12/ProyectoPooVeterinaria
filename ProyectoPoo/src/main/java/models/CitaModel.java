@@ -22,13 +22,20 @@ public class CitaModel extends conexion{
             while(rs.next()){
                 Cita c = new Cita();
                 c.setIdCita(rs.getInt("id_cita"));
+
+                // ESTE ES EL CAMPO QUE FALTABA
+                c.setIdMascota(rs.getInt("id_mascota"));
+                c.setIdServicio(rs.getInt("id_servicio"));
+
                 c.setMascota(rs.getString("mascota"));
                 c.setCliente(rs.getString("cliente"));
                 c.setServicio(rs.getString("servicio"));
+
                 c.setFecha(rs.getString("fecha_cita"));
                 c.setHora(rs.getString("hora_cita"));
                 c.setEstado(rs.getString("estado"));
                 lista.add(c);
+            
             }
         }catch(Exception e){ e.printStackTrace(); }
         finally{ cerrarConexion(); }
@@ -59,7 +66,7 @@ public class CitaModel extends conexion{
 
             if(rs.next()){
                 Cita c = new Cita();
-                c.setIdCita(id);
+                c.setIdCita(rs.getInt("id_cita"));
                 c.setIdMascota(rs.getInt("id_mascota"));
                 c.setIdServicio(rs.getInt("id_servicio"));
                 c.setFecha(rs.getString("fecha_cita"));

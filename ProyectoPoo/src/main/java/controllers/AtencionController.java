@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import models.AtencionModel;
+import models.CitaModel;
 import models.MascotaModel;
 import models.ServicioModel;
 
@@ -13,8 +14,7 @@ import java.io.IOException;
 import java.util.List;
 
 import beans.Atencion;
-import beans.Mascota;
-import beans.Servicio;
+
 
 /**
  * Servlet implementation class AtencionController
@@ -26,6 +26,7 @@ public class AtencionController extends HttpServlet {
 	AtencionModel modeloAtencion = new AtencionModel();
     MascotaModel modeloMascota = new MascotaModel();
     ServicioModel modeloServicio = new ServicioModel();
+    CitaModel modeloCita = new CitaModel(); 
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -51,52 +52,68 @@ public class AtencionController extends HttpServlet {
 
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        List<Atencion> lista = modeloAtencion.listarAtenciones();
-        List<Mascota> mascotas = modeloMascota.listarMascotas();
-        List<Servicio> servicios = modeloServicio.listarServicios();
 
-        request.setAttribute("listaAtenciones", lista);
-        request.setAttribute("listaMascotas", mascotas);
-        request.setAttribute("listaServicios", servicios);
+        request.setAttribute("listaAtenciones", modeloAtencion.listarAtenciones());
+        request.setAttribute("listaCitas", modeloCita.listarCitas());   // <---
+        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
+        request.setAttribute("listaServicios", modeloServicio.listarServicios());
+
         request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request,response);
     }
 
     private void buscar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
         String texto = request.getParameter("buscar");
+
+        // 🔥 SI EL BUSCADOR ESTÁ VACÍO → LISTAR TODO
+        if (texto == null || texto.trim().isEmpty()) {
+            listar(request, response);
+            return;
+        }
+
         List<Atencion> lista = modeloAtencion.buscarAtencion(texto);
+
         request.setAttribute("listaAtenciones", lista);
-        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
-        request.setAttribute("listaServicios", modeloServicio.listarServicios());
-        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request,response);
+        request.setAttribute("listaCitas", modeloCita.listarCitas());
+        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request, response);
     }
 
     private void insertar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         try{
             Atencion a = new Atencion();
-            a.setIdCita(Integer.parseInt(request.getParameter("idCita"))); // aquí se registra con el id de la cita
+            a.setIdCita(Integer.parseInt(request.getParameter("idCita"))); 
             a.setDiagnostico(request.getParameter("diagnostico"));
             a.setTratamiento(request.getParameter("tratamiento"));
             a.setReceta(request.getParameter("receta"));
 
             boolean ok = modeloAtencion.insertarAtencion(a);
-            if(ok) response.sendRedirect("AtencionController?op=listar");
-            else response.sendRedirect("error.jsp");
-        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+            response.sendRedirect("AtencionController?op=listar");
+
+        }catch(Exception e){
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
     }
+
 
     private void editar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try{
-            int id = Integer.parseInt(request.getParameter("id"));
-            Atencion a = modeloAtencion.buscarAtencionPorId(id);
-            request.setAttribute("atencion", a);
-            request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
-            request.setAttribute("listaServicios", modeloServicio.listarServicios());
-            request.getRequestDispatcher("Atencion/editarAtencion.jsp").forward(request,response);
-        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+
+        int id = Integer.parseInt(request.getParameter("id"));
+
+        Atencion a = modeloAtencion.buscarAtencionPorId(id);
+
+        request.setAttribute("atencion", a);
+        request.setAttribute("listaCitas", modeloCita.listarCitas()); // <---
+        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
+        request.setAttribute("listaServicios", modeloServicio.listarServicios());
+
+        request.getRequestDispatcher("Atencion/editarAtencion.jsp").forward(request,response);
     }
+
 
     private void actualizar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

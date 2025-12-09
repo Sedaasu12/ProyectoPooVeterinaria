@@ -37,14 +37,18 @@ public class AtencionModel extends conexion {
         return lista;
     }
 
-    public List<Atencion> buscarAtencion(String texto){
+    public List<Atencion> buscarAtencion(String texto) {
         List<Atencion> lista = new ArrayList<>();
-        try{
+        try {
+            // Si el texto está vacío, usamos "%" para que busque todo
+            if (texto == null || texto.trim().isEmpty()) {
+                texto = "%"; // Esto devuelve todos los resultados
+            }
             abrirConexion();
             cs = conexion.prepareCall("{CALL sp_buscarAtencionTexto(?)}");
             cs.setString(1, texto);
             rs = cs.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 Atencion a = new Atencion();
                 a.setIdAtencion(rs.getInt("id_atencion"));
                 a.setIdCita(rs.getInt("id_cita"));
@@ -58,13 +62,16 @@ public class AtencionModel extends conexion {
                 a.setServicio(rs.getString("servicio"));
                 lista.add(a);
             }
-        }catch(Exception e){ e.printStackTrace(); }
-        finally{ cerrarConexion(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            cerrarConexion();
+        }
         return lista;
     }
 
     public Atencion buscarAtencionPorId(int id){
-        Atencion a = null;
+    	Atencion a = null;
         try{
             abrirConexion();
             cs = conexion.prepareCall("{CALL sp_buscarAtencion(?)}");
@@ -78,6 +85,10 @@ public class AtencionModel extends conexion {
                 a.setDiagnostico(rs.getString("diagnostico"));
                 a.setTratamiento(rs.getString("tratamiento"));
                 a.setReceta(rs.getString("receta"));
+                a.setIdMascota(rs.getInt("id_mascota"));
+                a.setMascota(rs.getString("mascota"));
+                a.setCliente(rs.getString("cliente"));
+                a.setServicio(rs.getString("servicio"));
             }
         }catch(Exception e){ e.printStackTrace(); }
         finally{ cerrarConexion(); }
