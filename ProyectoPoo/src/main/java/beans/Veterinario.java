@@ -18,6 +18,8 @@ public class Veterinario {
 			super();
 		}
 
+		
+
 		public Veterinario(int idVeterinario, int idUsuario, String nombres, String apellidos, String dni,
 				String telefono, String email, String especialidad, String estado, Timestamp fechaRegistro) {
 			super();
@@ -32,6 +34,8 @@ public class Veterinario {
 			this.estado = estado;
 			this.fechaRegistro = fechaRegistro;
 		}
+
+
 
 		public int getIdVeterinario() {
 			return idVeterinario;
