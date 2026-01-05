@@ -85,6 +85,10 @@ if(nombreUsuario == null){
                             <a class="dropdown-item" href="<%=contextPath%>/UsuariosController?op=listar">
                                 <i class="fas fa-users-cog"></i> Usuarios
                             </a>
+                            
+                            <a class="dropdown-item" href="<%=contextPath%>/VeterinarioController?op=listar">
+                                <i class="fas fa-users-cog"></i> Veterinarios
+                            </a>
                         </li>
                     </ul>
                 </li>

@@ -13,13 +13,20 @@ public class Atencion {
     private String mascota;
     private String cliente;
     private String servicio;
+    
+    private int idVeterinario;
+    private String veterinario;
+    private String estado;
 	
     public Atencion() {
 		super();
 	}
 
+	
+
 	public Atencion(int idAtencion, int idCita, String fechaAtencion, String diagnostico, String tratamiento,
-			String receta, int idMascota, String mascota, String cliente, String servicio) {
+			String receta, int idMascota, String mascota, String cliente, String servicio, int idVeterinario,
+			String veterinario, String estado) {
 		super();
 		this.idAtencion = idAtencion;
 		this.idCita = idCita;
@@ -31,7 +38,48 @@ public class Atencion {
 		this.mascota = mascota;
 		this.cliente = cliente;
 		this.servicio = servicio;
+		this.idVeterinario = idVeterinario;
+		this.veterinario = veterinario;
+		this.estado = estado;
 	}
+
+
+
+	public int getIdVeterinario() {
+		return idVeterinario;
+	}
+
+
+
+	public void setIdVeterinario(int idVeterinario) {
+		this.idVeterinario = idVeterinario;
+	}
+
+
+
+	public String getVeterinario() {
+		return veterinario;
+	}
+
+
+
+	public void setVeterinario(String veterinario) {
+		this.veterinario = veterinario;
+	}
+
+
+
+	public String getEstado() {
+		return estado;
+	}
+
+
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
+
+
 
 	public int getIdAtencion() {
 		return idAtencion;

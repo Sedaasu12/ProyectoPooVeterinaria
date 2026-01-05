@@ -7,8 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import models.AtencionModel;
 import models.CitaModel;
-import models.MascotaModel;
-import models.ServicioModel;
+
+import models.VeterinarioModel;
 
 import java.io.IOException;
 import java.util.List;
@@ -23,124 +23,175 @@ import beans.Atencion;
 public class AtencionController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
-	AtencionModel modeloAtencion = new AtencionModel();
-    MascotaModel modeloMascota = new MascotaModel();
-    ServicioModel modeloServicio = new ServicioModel();
-    CitaModel modeloCita = new CitaModel(); 
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public AtencionController() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-    
-    protected void Procesar(HttpServletRequest request, HttpServletResponse response)
+
+	private AtencionModel modeloAtencion = new AtencionModel();
+    private CitaModel modeloCita = new CitaModel();
+    private VeterinarioModel modeloVeterinario = new VeterinarioModel();
+
+    /* =====================================================
+     * MÉTODO CENTRAL
+     * ===================================================== */
+    protected void procesar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         String op = request.getParameter("op");
-        if(op==null){ listar(request,response); return; }
-        switch(op){
-            case "listar": listar(request,response); break;
-            case "buscar": buscar(request,response); break;
-            case "insertar": insertar(request,response); break;
-            case "editar": editar(request,response); break;
-            case "actualizar": actualizar(request,response); break;
-            case "eliminar": eliminar(request,response); break;
-            default: listar(request,response); break;
+
+        if (op == null) {
+            op = "listar";
+        }
+
+        switch (op) {
+            case "listar":
+                listar(request, response);
+                break;
+            case "buscar":
+                buscar(request, response);
+                break;
+            case "insertar":
+                insertar(request, response);
+                break;
+            case "actualizar":
+                actualizar(request, response);
+                break;
+            case "desactivar":
+                desactivar(request, response);
+                break;
+            case "activar":
+                activar(request, response);
+                break;
+            default:
+                listar(request, response);
+                break;
         }
     }
 
+
+    /* =====================================================
+     * LISTAR
+     * ===================================================== */
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         request.setAttribute("listaAtenciones", modeloAtencion.listarAtenciones());
-        request.setAttribute("listaCitas", modeloCita.listarCitas());   // <---
-        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
-        request.setAttribute("listaServicios", modeloServicio.listarServicios());
+        request.setAttribute("listaCitas", modeloCita.listarCitas());
+        request.setAttribute("listaVeterinarios", modeloVeterinario.listarVeterinarios());
 
-        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request,response);
+        request.getRequestDispatcher("Atencion/listarAtencion.jsp")
+               .forward(request, response);
     }
 
+    /* =====================================================
+     * BUSCAR
+     * ===================================================== */
     private void buscar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String texto = request.getParameter("buscar");
 
-        // 🔥 SI EL BUSCADOR ESTÁ VACÍO → LISTAR TODO
-        if (texto == null || texto.trim().isEmpty()) {
-            listar(request, response);
-            return;
-        }
-
-        List<Atencion> lista = modeloAtencion.buscarAtencion(texto);
+        List<Atencion> lista = modeloAtencion.buscarAtenciones(texto);
 
         request.setAttribute("listaAtenciones", lista);
         request.setAttribute("listaCitas", modeloCita.listarCitas());
-        request.getRequestDispatcher("Atencion/listarAtencion.jsp").forward(request, response);
+        request.setAttribute("listaVeterinarios", modeloVeterinario.listarVeterinarios());
+
+        request.getRequestDispatcher("Atencion/listarAtencion.jsp")
+               .forward(request, response);
     }
 
+    /* =====================================================
+     * INSERTAR
+     * ===================================================== */
     private void insertar(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
-        try{
+        try {
             Atencion a = new Atencion();
-            a.setIdCita(Integer.parseInt(request.getParameter("idCita"))); 
+            a.setIdCita(Integer.parseInt(request.getParameter("idCita")));
+            a.setIdVeterinario(Integer.parseInt(request.getParameter("idVeterinario")));
             a.setDiagnostico(request.getParameter("diagnostico"));
             a.setTratamiento(request.getParameter("tratamiento"));
             a.setReceta(request.getParameter("receta"));
 
-            boolean ok = modeloAtencion.insertarAtencion(a);
+            modeloAtencion.insertarAtencion(a);
             response.sendRedirect("AtencionController?op=listar");
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("error.jsp");
         }
     }
 
-
+    /* =====================================================
+     * EDITAR
+     * ===================================================== */
     private void editar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         int id = Integer.parseInt(request.getParameter("id"));
-
         Atencion a = modeloAtencion.buscarAtencionPorId(id);
 
         request.setAttribute("atencion", a);
-        request.setAttribute("listaCitas", modeloCita.listarCitas()); // <---
-        request.setAttribute("listaMascotas", modeloMascota.listarMascotas());
-        request.setAttribute("listaServicios", modeloServicio.listarServicios());
+        request.setAttribute("listaVeterinarios", modeloVeterinario.listarVeterinarios());
 
-        request.getRequestDispatcher("Atencion/editarAtencion.jsp").forward(request,response);
+        request.getRequestDispatcher("Atencion/editarAtencion.jsp")
+               .forward(request, response);
     }
 
-
+    /* =====================================================
+     * ACTUALIZAR
+     * ===================================================== */
     private void actualizar(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        try{
+            throws IOException {
+
+        try {
             Atencion a = new Atencion();
             a.setIdAtencion(Integer.parseInt(request.getParameter("idAtencion")));
-            a.setIdCita(Integer.parseInt(request.getParameter("idCita")));
             a.setDiagnostico(request.getParameter("diagnostico"));
             a.setTratamiento(request.getParameter("tratamiento"));
             a.setReceta(request.getParameter("receta"));
 
-            boolean ok = modeloAtencion.actualizarAtencion(a);
-            if(ok) response.sendRedirect("AtencionController?op=listar");
-            else response.sendRedirect("error.jsp");
-        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+            modeloAtencion.actualizarAtencion(a);
+            response.sendRedirect("AtencionController?op=listar");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
+        }
     }
 
-    private void eliminar(HttpServletRequest request, HttpServletResponse response)
+    /* =====================================================
+     * DESACTIVAR (ELIMINADO LÓGICO)
+     * ===================================================== */
+    private void desactivar(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        int id = Integer.parseInt(request.getParameter("id"));
+        modeloAtencion.desactivarAtencion(id);
+        response.sendRedirect("AtencionController?op=listar");
+    }
+
+    /* =====================================================
+     * ACTIVAR
+     * ===================================================== */
+    private void activar(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+
+        int id = Integer.parseInt(request.getParameter("id"));
+        modeloAtencion.activarAtencion(id);
+        response.sendRedirect("AtencionController?op=listar");
+    }
+
+    /* =====================================================
+     * MÉTODOS HTTP
+     * ===================================================== */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try{
-            int id = Integer.parseInt(request.getParameter("id"));
-            boolean ok = modeloAtencion.eliminarAtencion(id);
-            if(ok) response.sendRedirect("AtencionController?op=listar");
-            else response.sendRedirect("error.jsp");
-        }catch(Exception e){ e.printStackTrace(); response.sendRedirect("error.jsp"); }
+        procesar(request, response);
     }
 
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { Procesar(req,resp); }
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException { Procesar(req,resp); }
-}
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        procesar(request, response);
+    }}

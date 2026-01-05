@@ -23,7 +23,7 @@ public class CitaModel extends conexion{
                 Cita c = new Cita();
                 c.setIdCita(rs.getInt("id_cita"));
 
-                // ESTE ES EL CAMPO QUE FALTABA
+                
                 c.setIdMascota(rs.getInt("id_mascota"));
                 c.setIdServicio(rs.getInt("id_servicio"));
 

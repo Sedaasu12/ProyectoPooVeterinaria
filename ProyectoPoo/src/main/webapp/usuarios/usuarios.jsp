@@ -134,6 +134,7 @@ if(session.getAttribute("usuario") == null){
                                 <select name="rol" class="form-select">
                                     <option value="ADMIN" <%=u.getRol().equals("ADMIN")?"selected":""%>>ADMIN</option>
                                     <option value="USUARIO"  <%=u.getRol().equals("USUARIO")?"selected":""%>>USUARIO</option>
+                                    <option value="VETERINARIO"  <%=u.getRol().equals("VETERINARIO")?"selected":""%>>VETERINARIO</option>
                                 </select>
                             </div>
 
@@ -232,6 +233,7 @@ if(session.getAttribute("usuario") == null){
                         <select name="rol" class="form-select">
                             <option value="ADMIN">ADMIN</option>
                             <option value="USUARIO">USUARIO</option>
+                            <option value="VETERINARIO">VETERINARIO</option>
                         </select>
                     </div>
 

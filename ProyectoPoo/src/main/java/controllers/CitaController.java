@@ -80,9 +80,7 @@ public class CitaController extends HttpServlet {
         }
     }
 
-    // =====================================================
-    // LISTAR TODAS LAS CITAS
-    // =====================================================
+
     private void listar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -97,9 +95,7 @@ public class CitaController extends HttpServlet {
         request.getRequestDispatcher("Cita/listarCita.jsp").forward(request, response);
     }
 
-    // =====================================================
-    // BÚSQUEDA GENERAL
-    // =====================================================
+  
     private void buscar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -116,9 +112,7 @@ public class CitaController extends HttpServlet {
         request.getRequestDispatcher("Cita/listarCita.jsp").forward(request, response);
     }
 
-    // =====================================================
-    // INSERTAR
-    // =====================================================
+    
     private void insertar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -145,9 +139,7 @@ public class CitaController extends HttpServlet {
         }
     }
 
-    // =====================================================
-    // EDITAR (Cargar datos en modal)
-    // =====================================================
+    
     private void editar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -170,9 +162,7 @@ public class CitaController extends HttpServlet {
         }
     }
 
-    // =====================================================
-    // ACTUALIZAR
-    // =====================================================
+   
     private void actualizar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -200,9 +190,7 @@ public class CitaController extends HttpServlet {
         }
     }
 
-    // =====================================================
-    // ELIMINAR
-    // =====================================================
+    
     private void eliminar(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
